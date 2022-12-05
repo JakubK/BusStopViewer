@@ -1,8 +1,19 @@
+using BusStopViewer.Api.Data;
+using BusStopViewer.Api.Filters;
 using BusStopViewer.Api.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IStopService, StopService>();
+
+builder.Services.AddDbContext<AppDbContext>(options => {
+    options.UseMySql(builder.Configuration.GetConnectionString("DB_CONNECTION_STRING"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DB_CONNECTION_STRING")));
+});
+builder.Services.AddSingleton<IJwtService, JwtService>();
+
 builder.Services.AddHttpClient<ITristarClient, TristarClient>(options =>
 {
     options.BaseAddress = new Uri("https://ckan.multimediagdansk.pl");
@@ -25,6 +36,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+{
+    var context = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
+    context.Database.Migrate();
+}
+
+app.UseMiddleware<JwtMiddleware>();
 
 app.UseHttpsRedirection();
 
