@@ -7,6 +7,7 @@ namespace BusStopViewer.Api.Services;
 public interface ITristarClient
 {
     Task<List<Stop>> GetAllStopsAsync();
+    Task<List<Delay>> GetStopDelaysAsync(string stopId);
 }
 
 public class TristarClient : ITristarClient
@@ -27,5 +28,15 @@ public class TristarClient : ITristarClient
         JObject jObject = JObject.Parse(content);
         var subJson = jObject[date]!["stops"].ToString();
         return JsonConvert.DeserializeObject<List<Stop>>(subJson)!;
+    }
+
+    public async Task<List<Delay>> GetStopDelaysAsync(string stopId)
+    {
+        var response = await _httpClient.GetAsync($"https://ckan2.multimediagdansk.pl/delays?stopId={stopId}");
+        response.EnsureSuccessStatusCode();
+        var content = await response.Content.ReadAsStringAsync();
+        JObject jObject = JObject.Parse(content);
+        var subJson = jObject["delay"].ToString();
+        return JsonConvert.DeserializeObject<List<Delay>>(subJson)!;
     }
 }

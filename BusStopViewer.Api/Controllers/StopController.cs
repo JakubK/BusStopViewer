@@ -27,4 +27,11 @@ public class StopController : ControllerBase
             return _tristarClient.GetAllStopsAsync();
         });
     }
+    
+    [HttpGet("{stopId}")]
+    public async Task<ActionResult<List<Stop>>> GetStopDelays(string stopId)
+    {
+        var result = await _tristarClient.GetStopDelaysAsync(stopId);
+        return Ok(result);
+    }
 }
