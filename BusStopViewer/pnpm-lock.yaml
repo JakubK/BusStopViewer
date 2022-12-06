@@ -13,6 +13,7 @@ specifiers:
   vue-good-table-next: ^0.2.1
   vue-router: ^4.1.6
   vue-tsc: ^1.0.9
+  vuex: ^4.0.2
 
 dependencies:
   '@element-plus/icons-vue': 2.0.10_vue@3.2.45
@@ -21,6 +22,7 @@ dependencies:
   vue: 3.2.45
   vue-good-table-next: 0.2.1
   vue-router: 4.1.6_vue@3.2.45
+  vuex: 4.0.2_vue@3.2.45
 
 devDependencies:
   '@vitejs/plugin-vue': 3.2.0_vite@3.2.5+vue@3.2.45
@@ -1350,3 +1352,12 @@ packages:
       '@vue/runtime-dom': 3.2.45
       '@vue/server-renderer': 3.2.45_vue@3.2.45
       '@vue/shared': 3.2.45
+
+  /vuex/4.0.2_vue@3.2.45:
+    resolution: {integrity: sha512-M6r8uxELjZIK8kTKDGgZTYX/ahzblnzC4isU1tpmEuOIIKmV+TRdc+H4s8ds2NuZ7wpUTdGRzJRtoj+lI+pc0Q==}
+    peerDependencies:
+      vue: ^3.0.2
+    dependencies:
+      '@vue/devtools-api': 6.4.5
+      vue: 3.2.45
+    dev: false
