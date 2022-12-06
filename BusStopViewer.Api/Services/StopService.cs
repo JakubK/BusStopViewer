@@ -40,13 +40,14 @@ public class StopService : IStopService
 
     public void RemoveStop(int userId, Stop stop)
     {
-        var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
+        var user = _dbContext.Users
+            .Include(x => x.UserStops)
+            .FirstOrDefault(x => x.Id == userId);
         if (user != null)
         {
-            if (user.UserStops.All(x => x.StopId != stop.StopId)) // If user have this stop assigned
+            var userStop = _dbContext.UserStops.FirstOrDefault(x => x.StopId == stop.StopId);
+            if (userStop != null)
             {
-                var userStop = _dbContext.UserStops
-                    .FirstOrDefault(x => x.UserId == userId && x.StopId == stop.StopId);
                 _dbContext.UserStops.Remove(userStop);
                 _dbContext.SaveChanges();
             }
@@ -56,6 +57,7 @@ public class StopService : IStopService
     public List<int> GetAssignedStops(int userId)
     {
         return _dbContext.Users
+            .Include(x => x.UserStops)
             .FirstOrDefault(x => x.Id == userId)
             .UserStops
             .Select(x => x.StopId)
