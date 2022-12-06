@@ -3,6 +3,7 @@ import Register from "../views/Register.vue";
 import Login from "../views/Login.vue";
 import Stops from "../views/Stops.vue";
 import AssignedStops from "../views/AssignedStops.vue";
+import Delays from "../views/Delays.vue";
 
 const routes: RouteRecordRaw[] = [
     {
@@ -20,6 +21,11 @@ const routes: RouteRecordRaw[] = [
     {
         path: '/my-stops',
         component: AssignedStops
+    },
+    {
+        path: '/stops/:id/delays',
+        component: Delays,
+        props: true
     }
 ];
 

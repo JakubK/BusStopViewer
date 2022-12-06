@@ -1,7 +1,7 @@
 <template>
     <div>
         <h2>All stops</h2>
-        <el-input v-model="search" size="small" placeholder="Type to search"></el-input>
+        <Searchbar v-model="search" placeholder="Type to search"></Searchbar>
         <el-table-v2
             :columns="columns"
             :data="filteredTableData"
@@ -16,6 +16,8 @@ import { computed, onMounted, ref, Ref } from 'vue';
 import { Stop } from '../models/stop';
 import stopService from '../services/stops';
 import type { Column } from 'element-plus'
+import router from '../router';
+import Searchbar from '../components/Searchbar.vue';
 
 const columns: Partial<Column<any[]>> = [
     {
@@ -40,7 +42,10 @@ const columns: Partial<Column<any[]>> = [
         key: 'actions',
         title: 'Actions',
         width: 120,
-        cellRenderer: ({ rowData }) => <el-button onclick={() => handleAssign(rowData.stopId)}>Assign</el-button>,
+        cellRenderer: ({ rowData }) => (<div>
+            <el-button onclick={() => handleViewDelays(rowData.stopId)}>View delays</el-button>
+            <el-button onclick={() => handleAssign(rowData.stopId)}>Assign</el-button>
+        </div>),
     },
 ]
 
@@ -64,6 +69,10 @@ const handleAssign = async(rowId: number) => {
 
 const handleRemove = async(rowId: number) => {
     await stopService.removeStopFromUser(rowId);
+}
+
+const handleViewDelays = (stopId: number) => {
+    router.push(`/stops/${stopId}/delays`);
 }
 
 </script>
