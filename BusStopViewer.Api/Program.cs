@@ -5,6 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options => options.AddPolicy("CorsPolicy",
+    builder =>
+    {
+        builder.AllowAnyHeader()
+            .AllowAnyMethod()
+            .SetIsOriginAllowed((host) => true)
+            .AllowCredentials();
+    }));
+
 // Add services to the container.
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IStopService, StopService>();
@@ -42,6 +51,8 @@ using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>(
     var context = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
     context.Database.Migrate();
 }
+
+app.UseCors("CorsPolicy");
 
 app.UseMiddleware<JwtMiddleware>();
 
