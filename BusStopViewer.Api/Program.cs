@@ -1,5 +1,6 @@
 using BusStopViewer.Api.Data;
 using BusStopViewer.Api.Filters;
+using BusStopViewer.Api.Options;
 using BusStopViewer.Api.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,8 @@ builder.Services.AddCors(options => options.AddPolicy("CorsPolicy",
     }));
 
 // Add services to the container.
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("jwt"));
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IStopService, StopService>();
 

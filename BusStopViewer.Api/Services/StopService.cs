@@ -1,5 +1,6 @@
 ﻿using BusStopViewer.Api.Data;
 using BusStopViewer.Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusStopViewer.Api.Services;
 
@@ -21,7 +22,7 @@ public class StopService : IStopService
 
     public void AssignStop(int userId, Stop stop)
     {
-        var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
+        var user = _dbContext.Users.Include(x => x.UserStops).FirstOrDefault(x => x.Id == userId);
         if (user != null)
         {
             if (user.UserStops.All(x => x.StopId != stop.StopId)) // If user does not have this stop assigned

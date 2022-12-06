@@ -21,6 +21,8 @@ const form:Ref<Partial<LoginForm>> = ref({});
 
 const handleLogin = async() => {
     const token = await authService.login(form.value as LoginForm);
+    localStorage.setItem("jwt", token);
+    router.push('/stops');
 }
 
 </script>

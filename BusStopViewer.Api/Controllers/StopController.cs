@@ -7,6 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 namespace BusStopViewer.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("[controller]")]
 public class StopController : ControllerBase
 {
@@ -22,15 +23,11 @@ public class StopController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<ActionResult<List<Stop>>> GetAllStopsAsync()
+    public async Task<ActionResult<List<Stop>>> GetAllStops()
     {
-        return await _memoryCache.GetOrCreateAsync("stops", cacheEntry =>
-        {
-            cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1);
-            return _tristarClient.GetAllStopsAsync();
-        });
+        return await GetAllStopsAsync();
     }
-    
+
     [HttpGet("{stopId}")]
     public async Task<ActionResult<List<Stop>>> GetStopDelays(string stopId)
     {
@@ -43,8 +40,7 @@ public class StopController : ControllerBase
     {
         int userId = int.Parse(HttpContext.Items["User"].ToString());
         var stopIds = _stopService.GetAssignedStops(userId);
-        var stopsActionResult = await GetAllStopsAsync();
-        var stops = (stopsActionResult.Result as OkObjectResult)!.Value as List<Stop>;
+        var stops = await GetAllStopsAsync();
 
         var result = stops
             .Where(x => stopIds.Contains(x.StopId))
@@ -53,13 +49,11 @@ public class StopController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
     [HttpPost("{stopid}")]
     public async Task<ActionResult<List<Stop>>> AssignStopToUser(int stopId)
     {
         int userId = int.Parse(HttpContext.Items["User"].ToString());
-        var stopsActionResult = await GetAllStopsAsync();
-        var stops = (stopsActionResult.Result as OkObjectResult)!.Value as List<Stop>;
+        var stops = await GetAllStopsAsync();
         var stop = stops.FirstOrDefault(x => x.StopId == stopId);
         
         if(stop != null)
@@ -67,17 +61,24 @@ public class StopController : ControllerBase
         return Ok();
     }
     
-    [Authorize]
     [HttpDelete("{stopid}")]
     public async Task<ActionResult<List<Stop>>> RemoveStopFromUser(int stopId)
     {
         int userId = int.Parse(HttpContext.Items["User"].ToString());
-        var stopsActionResult = await GetAllStopsAsync();
-        var stops = (stopsActionResult.Result as OkObjectResult)!.Value as List<Stop>;
+        var stops = await GetAllStopsAsync();
         var stop = stops.FirstOrDefault(x => x.StopId == stopId);
         
         if(stop != null)
             _stopService.RemoveStop(userId, stop);
         return Ok();
+    }
+
+    private async Task<List<Stop>> GetAllStopsAsync()
+    {
+        return await _memoryCache.GetOrCreateAsync("stops", cacheEntry =>
+        {
+            cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1);
+            return _tristarClient.GetAllStopsAsync();
+        });
     }
 }

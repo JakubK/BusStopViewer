@@ -6,6 +6,10 @@ export default {
         const response = await request.get('/stop');
         return response.data
     },
+    async fetchOwnedStops(): Promise<Stop[]> {
+        const response = await request.get('/stop/assigned');
+        return response.data
+    },
     async assignStopToUser(stopId: number): Promise<any> {
         const response = await request.post(`/stop/${stopId}`);
         return response.data
