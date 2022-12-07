@@ -14,15 +14,15 @@
 <script lang="ts" setup>
 import { Ref, ref } from 'vue';
 import authService from '../services/auth';
-import router from '../router';
 import { LoginForm } from '../models/login';
+import { useStore } from '../store';
 
 const form:Ref<Partial<LoginForm>> = ref({});
 
+const store = useStore();
 const handleLogin = async() => {
     const token = await authService.login(form.value as LoginForm);
-    localStorage.setItem("jwt", token);
-    router.push('/stops');
+    store.commit('logIn', token)
 }
 
 </script>

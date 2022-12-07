@@ -12,12 +12,13 @@
     </div>
 </template>
 <script lang="tsx" setup>
-import { computed, onMounted, ref, Ref } from 'vue';
-import { Stop } from '../models/stop';
+import { computed, onMounted, ref } from 'vue';
 import stopService from '../services/stops';
 import type { Column } from 'element-plus'
 import router from '../router';
 import Searchbar from '../components/Searchbar.vue';
+import { useStore } from '../store';
+import { Stop } from '../models/stop';
 
 const columns: Partial<Column<any[]>> = [
     {
@@ -49,26 +50,25 @@ const columns: Partial<Column<any[]>> = [
     },
 ]
 
-const search = ref('');
-const tableData: Ref<Stop[]> = ref([]);
+const store = useStore();
+const tableData = computed(() => store.getters.getStops);
+
 onMounted(async() => {
-    tableData.value = await stopService.fetchAllStops();
+    const allStops = await stopService.fetchAllStops();
+    store.commit('fillStops', allStops);
 })
 
+const search = ref('');
 const filteredTableData = computed(() => {
     if(search.value.length === 0)
         return tableData.value;
-    return tableData.value.filter(x => {
+    return tableData.value.filter((x:Stop) => {
         return x.stopName?.toLowerCase().includes(search.value.toLowerCase());
     });
 });
 
 const handleAssign = async(rowId: number) => {
     await stopService.assignStopToUser(rowId);
-}
-
-const handleRemove = async(rowId: number) => {
-    await stopService.removeStopFromUser(rowId);
 }
 
 const handleViewDelays = (stopId: number) => {

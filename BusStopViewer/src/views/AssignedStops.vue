@@ -13,12 +13,13 @@
 </template>
 
 <script lang="tsx" setup>
-import { computed, onMounted, ref, Ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { Stop } from '../models/stop';
 import stopService from '../services/stops';
 import type { Column } from 'element-plus'
 import router from '../router';
 import Searchbar from '../components/Searchbar.vue';
+import { useStore } from '../store';
 
 const columns: Partial<Column<any[]>> = [
     {
@@ -53,21 +54,24 @@ const columns: Partial<Column<any[]>> = [
 ]
 
 const search = ref('');
-const tableData: Ref<Stop[]> = ref([]);
+const tableData = computed(() => store.getters.getSelectedStops);
+const store = useStore();
 onMounted(async() => {
-    tableData.value = await stopService.fetchOwnedStops();
+    const ownedStops = await stopService.fetchOwnedStops();
+    store.commit('fillSelectedStops', ownedStops);
 })
 
 const filteredTableData = computed(() => {
     if(search.value.length === 0)
         return tableData.value;
-    return tableData.value.filter(x => {
+    return tableData.value.filter((x:Stop) => {
         return x.stopName?.toLowerCase().includes(search.value.toLowerCase());
     });
 });
 
 const handleRemove = async(stopId: number) => {
     await stopService.removeStopFromUser(stopId);
+    store.commit('fillSelectedStops', tableData.value.filter((x:Stop) => x.stopId !== stopId));
 }
 
 const handleViewDelays = (stopId: number) => {
